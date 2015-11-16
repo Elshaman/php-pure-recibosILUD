@@ -1,0 +1,28 @@
+.estilotexto {
+    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size:12px;
+    text-align: right;
+}
+
+.Netscape {
+    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size:12px;
+    color: #000000;
+    width: 143px;
+}
+
+.MSIE {
+    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size:12px;
+    color: #000000;
+    width: 144px;
+	text-align: left;
+}
+
+.Opera {
+    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size:12px;
+    color: #000000;
+    width: 141px;
+	text-align: left;
+}

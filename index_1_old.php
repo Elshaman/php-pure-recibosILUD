@@ -1,0 +1,625 @@
+<?php
+session_start();
+$_SESSION["acceso"]=1;
+include_once('DAL/Modelos/Matricula.php');
+include_once('DAL/Modelos/Nivel.php');
+include_once('DAL/Modelos/Estudiante.php');
+include_once('DAL/Modelos/Programa.php');
+include_once('DAL/Modelos/Seguimiento.php');
+include("conex2.php");
+$link2=Conectarse2();
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <meta http-equiv="Expires" content="0" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <link type="text/css" href="jqueryui/css/ui-lightness/jquery-ui-1.8.5.custom.css" rel="stylesheet" />
+        <script type="text/javascript" src="jqueryui/js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="jqueryui/js/jquery-ui-1.8.5.custom.min.js"></script>
+        <script type="text/javascript" src="jqueryui/js/funciones.js"></script>
+        <link rel="stylesheet" href="Css/estilotexto.css" />
+        <link rel="stylesheet" href="Css/estilotabla.css" />
+        
+        <script type="text/javascript">
+
+            function comprobarnavegador() {
+                /* Variables para cada navegador, la funcion indexof() si no encuentra la cadena devuelve -1,
+                 las variables se quedaran sin valor si la funcion indexof() no ha encontrado la cadena. */
+                var is_safari = navigator.userAgent.toLowerCase().indexOf('safari/') > -1;
+                var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome/') > -1;
+                var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox/') > -1;
+                var is_ie = navigator.userAgent.toLowerCase().indexOf('msie ') > -1;
+
+                /* Detectando  si es Safari, vereis que en esta condicion preguntaremos por chrome ademas, esto es porque el
+                 la cadena de texto userAgent de Safari es un poco especial y muy parecida a chrome debido a que los dos navegadores
+                 usan webkit. */
+
+                if (is_safari && !is_chrome) {
+
+                    /* Buscamos la cadena 'Version' para obtener su posicion en la cadena de texto, para ello
+                     utilizaremos la funcion, tolowercase() e indexof() que explicamos anteriormente */
+                    var posicion = navigator.userAgent.toLowerCase().indexOf('Version/');
+
+                    /* Una vez que tenemos la posiciÃ³n de la cadena de texto que indica la version capturamos la
+                     subcadena con substring(), como son 4 caracteres los obtendremos de 9 al 12 que es donde
+                     acaba la palabra 'version'. Tambien podraimos obtener la version con navigator.appVersion, pero
+                     la gran mayoria de las veces no es la version correcta. */
+                    var ver_safari = navigator.userAgent.toLowerCase().substring(posicion + 9, posicion + 12);
+
+                    // Convertimos la cadena de texto a float y mostramos la version y el navegador
+                    ver_safari = parseFloat(ver_safari);
+                    
+                    location.href="error.php"; 
+                    //alert('Su navegador es Safari, Version: ' + ver_safari);
+                }
+
+                //Detectando si es Chrome
+                if (is_chrome) {
+                    var posicion = navigator.userAgent.toLowerCase().indexOf('chrome/');
+                    var ver_chrome = navigator.userAgent.toLowerCase().substring(posicion + 7, posicion + 11);
+                    //Comprobar version
+                    ver_chrome = parseFloat(ver_chrome);
+                    location.href="error.php";
+                    //alert('Su navegador es Google Chrome, Version: ' + ver_chrome);
+                }
+
+                //Detectando si es Firefox
+                if (is_firefox) {
+                    var posicion = navigator.userAgent.toLowerCase().lastIndexOf('firefox/');
+                    var ver_firefox = navigator.userAgent.toLowerCase().substring(posicion + 8, posicion + 12);
+                    //Comprobar version
+                    ver_firefox = parseFloat(ver_firefox);
+                    //alert('Su navegador es Firefox, Version: ' + ver_firefox);
+                }
+
+                //Detectando Cualquier version de IE
+                if (is_ie) {
+                    var posicion = navigator.userAgent.toLowerCase().lastIndexOf('msie ');
+                    var ver_ie = navigator.userAgent.toLowerCase().substring(posicion + 5, posicion + 8);
+                    //Comprobar version
+                    ver_chrome = parseFloat(ver_ie);
+                    
+                    location.href="error.php";
+                    //alert('Su navegador es Internet Explorer, Version: ' + ver_ie);
+                }
+            }
+
+//Llamamos al funcion que comprueba el nagedaor al cargarse la pÃ¡gina
+            window.onload = comprobarnavegador();
+
+        </script>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <SCRIPT>
+            $(function() {
+                $( "#accordion" ).accordion({ header: "h3" });
+            });
+        </SCRIPT>
+        <style  type="text/css">
+
+            body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
+
+
+            .formula{
+                                border:#ff9900 dotted 1px;
+                /*background-color:#ffff66;*/
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 17px;
+                margin-bottom: 30px;
+                font-size: 13px;
+            }
+
+            .formula h1{
+                color:#cc6600;
+                font-family:sans-serif;
+                font-style:italic;
+                font-size: 20px;
+            }
+
+            .formula p{
+                color:#ff9933;
+                font-family:sans-serif;
+                font-style:italic;
+                font-size: 14px;
+
+            }
+
+            .tt{
+
+                width:130px;
+
+            }
+
+
+
+            #apDiv1 {
+                /*                position:absolute;*/
+                width:87px;
+                height:35px;
+                z-index:1;
+                /*                left: 193px;
+                                top: 46px;*/
+            }
+
+            .formularioletrero{
+                color:#666666;
+                font-family:sans-serif;
+                font-style:italic;
+                font-weight:bold;
+                font-size: 12px;
+            }
+
+            input[type="text"]{
+                background-color: #ffc;
+                border: #000 solid 1px;
+                font-family:monospace;
+            }
+
+
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div class="formula">
+            <h1>ILUD - Instituto de Lenguas Universidad Distrital</h1>
+            <p>
+                Bienvenido al aplicativo para descargar su recibo de pago para matricularse en el ILUD.
+            </p>
+
+            <p>
+                <?php
+                if (!isset($_POST[cedula])) {
+                    echo "Paso 1: Digite su numero de documento <b>(previa preinscripci&oacute;n de datos, si a&uacute;n no se ha preinscrito hagalo ";
+                    ?>
+
+                    <a href = "http://gemini.udistrital.edu.co/comunidad/dependencias/ilud/datosEstud.php">AQUI</a>)</b>
+                    <br> (Este aplicativo No esta habilitado para estudiantes ni funcionarios UD o estudiantes de Convenios)
+                        <?php
+                }
+                ?>
+            </p>
+          <p>TENGA EN CUENTA QUE LOS CUPOS SON HABILITADOS SOLO A PARTIR DEL DIA  CORRESPONDIENTE PARA CADA IDIOMA Y NIVEL SEGUN EL CALENDARIO DE INSCRIPCION</p>
+</div>    
+        <form  name="f1" method="post" action="<?php echo $_SERVER[PHP_SELF]; ?>">
+            <table>
+                <tr>
+                    <td class="formularioletrero">
+                        Ingrese su n&uacute;mero de documento:
+                        <input type="text" maxlength="15" name="cedula" class="tt" id="cedula" value="" onKeyPress="return valida_solonum(event);" />
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="apDiv1">
+                            <input type="image" src="imagenes/consultar.png" onClick="return valtxtvac();"  />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <?php
+        if (isset($_POST[cedula])) {
+            $estudiante = new Estudiante();
+            $estudiante->sel_estudiante($_POST[cedula]);
+            //var_dump($estudiante->datosestudiante);
+            if ($estudiante->datosestudiante === null) {
+                ?>
+                <p>El Estudiante no se encuentra registrado.</p>
+                <?php
+            } else {
+                ?>
+                <p><?php
+        echo utf8_decode($estudiante->datosestudiante[Apellidos] . "," .
+                $estudiante->datosestudiante[Nombres]);
+                ?></p>
+
+                <div class="formula">
+                    <h1>Paso 2:</h1>
+                    <p>Puede escoger cualquier idioma para matricularse: El aplicativo le muestra:
+                    </p>
+                    <ul>
+                        <li>
+                            <b>Si usted es alunmo nuevo</b>, el primer nivel para inscribirse, no debe aparecer ning&uacute;n seguimiento academico.<br> <br>
+                        </li>  
+                        <li>
+                            <b>Si usted es alumno antiguo</b>, su seguimiento academico por idioma, y El nivel al que puede matricularse, en funcion de su estado academico <br>
+                            (si cree que el nivel indicado por el sistema no es la correcto (el sistema indica el proximo nivel de acuerdo al reglamento de ilud), por favor dirijase a las oficinas del ILUD).<br> <br>
+                        </li>
+                        <li>
+                            <b>Si usted es alumno antiguo de children o teenagers</b>, le muestra dos programas para que se inscriba <br>
+                      Verifique y escoja el programa correcto para usted segun su nivel anterior, SI ESCOJE EL PROGRAMA EQUIVOCADO PUEDE PERDER EL CUPO.                    </li>
+                    </ul>
+                    <ul>
+                      <li> <b>Recuerde que cursos bimestrales solo se abrirán para</b>
+Inglés:
+Intro 2
+- Básico 2
+- Perfeccionamiento 2
+- Especialización 2
+- Profundización 2
+- Profundización 3
+<br> 
+                        <br>
+                        </li>
+                      
+                    </ul>    
+                  <p> para  matricularse al nivel sugerido por el aplicativo, presione el boton "Elegir grupo".</p>
+            </div>    
+            <div id="accordion">
+                <?php
+                $programas = new Programa($estudiante->datosestudiante[Acu_nino]);
+				$salta_semestral= 0 ;
+                foreach ($programas->programas as $programa) {
+				/*  if ($programa[Idioma] == "Intensivo Ingles" or $programa[Idioma] == "Intensivo Frances" or $programa[Idioma] == "Intensivo Italiano" or $programa[Idioma] == "Intensivo Aleman" or $programa[Idioma] == "Intensivo Portugue" or $programa[Idioma] == "IELTS" or $programa[Idioma] == "FCE"){*/
+				$cadena = "intensivo";
+		if ( $programa[Idioma] == "Intensivo Frances" or $programa[Idioma] == "Intensivo Italiano" or $programa[Idioma] == "Intensivo Aleman" or $programa[Idioma] == "Intensivo Portugue" or $programa[Idioma] == "IELTS" or $programa[Idioma] == "FCE") {    // Si cadena contiene '.html'
+        // Eliminamos '.html' de la cadena
+   }else{		  
+				    ?>
+
+
+                    <div>
+                        <h3><a href="#">
+                                <?php
+                                echo utf8_decode($programa[Idioma]);
+                                if ($programa[Idioma] == "Children")
+                                    echo " Bimestral -DEBE INSCRIBIRSE EN ESTE PROGRAMA SI TIENE UNA EDAD ENTRE 7 A 10 A&Ntilde;OS-  ";
+                                else if ($programa[Idioma] == "Teenagers")
+                                    echo " Bimestral -DEBE INSCRIBIRSE EN ESTE PROGRAMA SI TIENE UNA EDAD ENTRE 11 A 14 A&Ntilde;OS- ";
+                                ?>
+
+                            </a>
+                        </h3>
+                        <div>
+                            <p>
+                                <?php
+                                $peri = new Periodo();
+                                $idperi = $peri->sel_identificador_nivel() . date('y');
+                                //echo $idperi;
+                                $matriculita = new Matricula();
+                                if (!$matriculita->sel_if_matriculas("$idperi%", $programa["Id_programa"], $_POST[cedula]))
+                                    echo "Tiene matriculas en tramite. Imposible solicitar recibo para este programa";
+                                else {
+
+									
+                                    $seg = new Seguimiento();
+                                    $seg->sel_seguimiento_estud_prg($_POST["cedula"], $programa["Id_programa"]);
+                                    if ($seg->tblSeguimiento()) {
+                                        $nivelproximo = $seg->determinarProximoNivel();
+                                    } else {
+                                        $nivel = new Nivel();
+                                        $arrnivelproximo = $nivel->sel_primer_nivel($programa["Id_programa"]);
+                                        $nivelproximo = $arrnivelproximo[1];
+                                    }
+                                    echo "El siguiente nivel al cual se puede matricular es: <b>$nivelproximo </b>";
+	
+
+	$Id_de_nivel = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);
+	$iddd = mysql_fetch_array($Id_de_nivel);
+	if ($iddd["eq_id_nivel"] != "no"){
+		
+		echo ".Éste nivel ya no está disponible en modalidad bimestral, debe iscribirlo en modalidad semestral en la pestaña ".$programa[Idioma]." semestre que aparece más abajo en esta página,";
+		
+		switch ($programa["Id_programa"]){
+		
+		case "1":
+		$ingles_s=1;
+		$ingles_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+		
+		case "2":
+		$frances_s=1;
+		$frances_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+		
+		case "3":
+		$aleman_s=1;
+		$aleman_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+		
+		case "4":
+		$italiano_s=1;
+		$italiano_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+		
+		case "12":
+		$portugues_s=1;
+		$portugues_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+		
+		case "5":
+		$ingles_ch_s=1;
+		$ingles_ch_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+		
+		case "6":
+		$ingles_t_s=1;
+		$ingles_t_trans = mysql_query("SELECT * FROM equiv_sem_bim WHERE Id_programa = '".$programa["Id_programa"]."' AND Nivel = '".$nivelproximo."'",$link2);	
+		break;
+
+		
+		}
+		
+		
+		}else{
+		
+		switch ($programa["Id_programa"]){
+		
+		case "16":
+		
+		if (isset($ingles_s)){
+									$ingles_matr = mysql_fetch_array($ingles_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$ingles_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Ingles Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"16\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$ingles_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+												
+			
+			}
+	
+		break;
+		
+		case "17":
+		
+		if (isset($frances_s)){
+									$frances_matr = mysql_fetch_array($frances_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$frances_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Frances Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"17\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$frances_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+												
+						}
+
+		break;
+		
+		case "18":
+		
+		if (isset($aleman_s)){
+									$aleman_matr = mysql_fetch_array($aleman_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$aleman_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Aleman Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"18\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$aleman_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+									
+			
+			
+			}
+	
+		break;
+		
+		case "19":
+
+		
+		if (isset($italiano_s)){
+									$italiano_matr = mysql_fetch_array($italiano_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$italiano_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Italiano Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"19\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$italiano_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+										
+			}
+	
+		
+		break;
+		
+		case "21":
+
+
+		if (isset($portugues_s)){
+									$portugues_matr = mysql_fetch_array($portugues_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$portugues_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Portugues Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"21\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$portugues_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+					}
+			
+				case "27":
+
+		if (isset($ingles_ch_s)){
+									$ingles_ch_matr = mysql_fetch_array($ingles_ch_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$ingles_ch_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Children Semestral\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"27\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$ingles_ch_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+					}
+					break;
+
+				case "28":
+
+		if (isset($ingles_t_s)){
+									$ingles_t_matr = mysql_fetch_array($ingles_t_trans);
+			
+									echo "<h2><br>Puede matricularse a ".$ingles_t_matr["eq_nivel"]." semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Teenagers Semestral\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"28\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$ingles_t_matr["eq_nivel"]."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+					}
+					break;		
+			
+
+									default :
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"".$programa[Idioma]."\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"".$programa["Id_programa"]."\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$nivelproximo."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                               		</form>";	
+					break;
+		}
+		
+		
+		
+		
+								
+				}
+
+		
+									
+									if ($programa["Id_programa"] == 16 and $salta_semestral != 0){
+																	
+										/*	switch ($salta_semestral) {
+												
+								case 1 :	
+									
+									echo "<h2><br>O al haber aprobado Intro 1 y 2 bimestral puede matricularse a Basico 1 y 2 semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Ingles Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"16\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"Basico 1 y 2\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+									break;
+								
+								case 2 :
+									
+									echo "<h2><br>O al haber aprobado Basic 1 y 2 bimestral puede matricularse a Perfeccionamiento 1 y 2 semestral</h2><br>";							
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Ingles Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"16\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"Perfeccionamiento 1 y 2\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";
+									break;
+									
+								case 3 :
+
+									echo "<h2><br>O al haber aprobado Perfeccionamiento 1 y 2 bimestral puede matricularse a Especialización 1 y 2 semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Ingles Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"16\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"Especializado 1 y 2\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                	</form>";	
+									break;
+																	
+								case 4 :
+									
+									echo "<h2><br>O al haber aprobado Especializado 1 y 2 bimestral puede matricularse a Profundización 1 y 2 semestral</h2><br>";
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"Ingles Semestre\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"16\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"Profundizacion 1 y 2\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                </form>";
+									break;
+																										
+									}									
+										
+										
+										}else{
+											
+									echo " <form action=\"formulariomat.php\" method=\"POST\">
+                                    <input type=\"hidden\" name=\"cedula\"  value=\"".$_POST[cedula]."\" />
+                                    <input type=\"hidden\" name=\"nombre\"  value=\"".$estudiante->datosestudiante[Nombres]."\"  />
+                                    <input type=\"hidden\" name=\"apellido\"  value=\"".$estudiante->datosestudiante[Apellidos]."\"  />
+                                    <input type=\"hidden\" name=\"programa\"  value=\"".$programa[Idioma]."\"  />
+                                    <input type=\"hidden\" name=\"idprograma\"  value=\"".$programa["Id_programa"]."\"  />
+                                    <input type=\"hidden\" name=\"nivel\"  value=\"".$nivelproximo."\"  />
+                                    <input type=\"image\" src=\"imagenes/elegir.png\" />
+                                </form>";*/
+										}
+									
+									// fin de case para transfarencia de bimestral a semestral
+									?>
+
+
+                                    <!--                        aqui va l tabla-->
+
+                                    <!--                   y el resutado de la evaluacion-->
+
+                                </p>
+                                <?php
+                            }
+                            ?>
+                        </div>
+
+                    </div>
+
+                    <?php
+                }}
+                ?>
+            </div>
+            <?php
+        }
+    }
+    ?>
+</body>
+</html>

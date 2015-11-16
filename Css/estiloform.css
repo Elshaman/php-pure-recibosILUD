@@ -1,0 +1,39 @@
+html, body {
+
+font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size:12px;
+    text-align: right;
+	
+
+
+background-color:#FAFBFC
+}
+
+
+
+
+
+#cform {
+
+width:420px;
+
+margin:80px auto 0 auto
+
+}
+
+fieldset div input {
+
+float:left;
+
+width:194px;
+
+padding:0.15em
+
+}
+
+html>body label {
+
+display:block
+
+}
+

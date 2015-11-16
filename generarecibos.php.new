@@ -1,0 +1,217 @@
+<?php
+
+session_start();
+
+include_once("DAL/Modelos/Periodo.php");
+include_once("DAL/Modelos/Programa.php");
+include_once("DAL/Modelos/Matricula.php");
+include_once("DAL/Modelos/Estudiante.php");
+include_once("DAL/Modelos/Seguimiento.php");
+include_once("DAL/Modelos/Grupo.php");
+include_once("DAL/Modelos/Nivel.php");
+include_once("librerias/codigoBarras.class.php");
+include_once("librerias/funciones.php");
+require('PDF_Invoice.php');
+ini_set('default_charset', 'utf-8');
+
+//var_dump($_SESSION);
+if(!isset($_SESSION[$_POST[idprograma]."recibos"])){
+
+    $_SESSION[$_POST[idprograma]."recibos"]=1;
+}
+elseif($_SESSION[$_POST[idprograma]."recibos"]==1){
+    echo "<script languaje=\"javascript\">location.href=\"index_1.php\"; </script>";
+    exit();
+}
+
+     $matriculita=new Matricula();
+
+    $numerogrupo = $matriculita->hallarNumeroGrupo($_POST["cadenagrupo"]);
+//echo $numerogrupo.'  ';
+    $nivelgrupo = $matriculita->hallarNivelGrupo($_POST["cadenagrupo"]);
+//echo $nivelgrupo.' ';
+    $indicegrupo = $matriculita->hallarIdGrupo($_POST["cadenagrupo"], $nivelgrupo);
+//echo $indicegrupo;
+    $consigcarne = 1;
+    $refcarne = 0;
+    if (!$matriculita->siTieneCarne($_POST[cedula])) {
+        //echo "no carne";
+        $refcarne = 1;
+        $valor_carne = 8500;
+        $recibocarne = "SI";
+    } else {
+        //echo "tiene carne";
+        $refcarne = 0;
+        $valor_carne = 0;
+        $recibocarne = "NO";
+    }
+    $contador_matricula = $matriculita->ins_contador();
+    //echo "<hr>".$contador_matricula;
+    $numatricula = $matriculita->numeroMatricula($contador_matricula);
+
+//echo "<hr>".$numatricula;
+    $fechamatricula = date("Y-m-d");
+    $periodo = new Periodo();
+    $idperiodo = $periodo->sel_periodo_Actual();
+    $recibonumeroperiodo = $periodo->sel_identificador_nivel();
+
+//insercion matricula
+
+    function precios($idprograma) {
+        $precio = 0;
+        switch ($idprograma) {
+            case 1:
+            case 5:
+            case 6:$precio = 182000;
+                break;
+            case 2:
+            case 3:
+            case 10:
+            case 12:
+            case 14:
+            case 4:$precio = 230000;
+                break;
+            case 7:$precio = 551000;
+                break;
+            case 11:$precio = 321000;
+                break;
+        }
+        return $precio;
+    }
+
+    $valor_matricula = precios($_POST[idprograma]);
+    $fecha_const_matricula = $matriculita->sumaDia($fechamatricula, 1);
+
+
+    $idmatricula = $matriculita->ins_matricula($numatricula,
+                    $fechamatricula,
+                    $idperiodo,
+                    $_POST[idprograma],
+                    $nivelgrupo,
+                    $_POST[cedula],
+                    $valor_matricula,
+                    $fecha_const_matricula,
+                    $refcarne,
+                    1,
+                    $valor_carne,
+                    '');
+
+    $RegAno = date("Y");
+    $seguimiento = new Seguimiento();
+    $seguimiento->ins_seguimiento($idperiodo,
+            $RegAno,
+            $_POST[cedula],
+            $_POST[idprograma],
+            $nivelgrupo);
+
+    $matriculita->ins_mat_grupo($numatricula, $indicegrupo);
+//echo "<hr />Matricula ins:".$idmatricula;
+
+    $grupo = new Grupo();
+//$grupo->upd_cupos_grupo($indicegrupo);
+
+    $configuracion[0] = "/var/www/html/htdocs/comunidad/dependencias/ilud/recibos";
+    $configuracion[1] = "/fuentes/";
+    $codigoBarras = new codigoBarras($configuracion);
+    $valortotal = $valor_matricula + $valor_carne;
+//echo $valortotal;
+//$cadenatratarfechalimite = str_replace("-", "", $fecha_const_matricula);
+
+
+    con_registro_recibo($configuracion, $codigoBarras, "$_POST[cedula]", "$numatricula", "$valortotal", "$fecha_const_matricula");
+
+
+    $pdf = new PDF_Invoice('P', 'mm', 'letter');
+    $pdf->AddPage();
+    $pdf->SetLineWidth(0.1);
+
+    /* Line entrecortada
+      $pdf->SetDash(1,1); //5mm on, 5mm off
+      $pdf->Line(0,93,216,93);
+      $pdf->SetDash(); */
+
+
+    $estudiante = new Estudiante();
+    $estudiante->sel_estudiante($_POST[cedula]);
+    $nombrecompletoestudiante = $estudiante->datosestudiante[Nombres] . " " . $estudiante->datosestudiante[Apellidos];
+    $telefonoestudiante = $estudiante->datosestudiante[Telefono];
+
+
+    $programa = new Programa($estudiante->datosestudiante[Acu_nino]);
+    $nombreprograma = $programa->sel_nombre_programa($_POST[idprograma]);
+
+    $nivel = new Nivel();
+    $recibonombrenivel = $nivel->sel_nombre_nivel($nivelgrupo);
+
+
+    $grupo->sel_grupo($indicegrupo);
+
+    $reciboSede = $grupo->datosgrupo[Sede];
+    $recibohorario = $grupo->datosgrupo[dias] . " " . $grupo->datosgrupo[horas];
+
+
+    $pdf->SetDash(1, 1); //5mm on, 5mm off
+    $pdf->Line(0, 92.5, 216, 93);
+    $pdf->Line(0, 185, 216, 185);
+    $pdf->SetDash();
+
+
+    $cadena = "BANCOLOMBIA CUENTA 3943656591";
+    $pdf->SetFont("Arial", "", 8);
+    $coorx = $longitud + 12;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 20);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $cadena = "-ILUD-";
+    $pdf->SetFont("Arial", "B", 10);
+    $coorx = $longitud;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 6);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $cadena = "Instituto de lenguas de la";
+    $pdf->SetFont("Arial", "", 10);
+    $coorx = $longitud + 28;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 10);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $cadena = "Universidad Distrital";
+    $pdf->SetFont("Arial", "", 10);
+    $coorx = $longitud;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 14);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $cadena = "COMPROBANTE";
+    $pdf->SetFont("Arial", "B", 10);
+    $coorx = $longitud + 63;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 6);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $cadena = "DE PAGO";
+    $pdf->SetFont("Arial", "B", 10);
+    $coorx = $longitud + 72;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 10);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $cadena = "No " . $numatricula;
+    $pdf->SetFont("Arial", "B", 10);
+    $coorx = $longitud + 81;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 14);
+    $pdf->Cell($longitud, 2, $cadena);
+
+    $pdf->RoundedRect(10, 3, 200, 87, 5);
+    $pdf->Line(10, 23, 210, 23);
+
+
+    $cadena = "UNIVERSIDAD DISTRITAL";
+    $pdf->SetFont("Arial", "B", 10);
+    $coorx = $longitud + 120;
+    $longitud = $pdf->GetStringWidth($cadena);
+    $pdf->SetXY($coorx, 6);
+    $pdf->Cell($longitud, 2, $cadena)

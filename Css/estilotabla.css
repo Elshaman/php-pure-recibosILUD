@@ -1,0 +1,27 @@
+
+tbody td+td+td+td a { background-image:url('bullet_blue.png');
+ background-position:left center;
+ background-repeat:no-repeat;
+ color:#03476F;
+ padding-left:15px;
+}
+tbody td+td+td+td a:visited { background-image:url('bullet_white.png');
+ background-position:left center;
+ background-repeat:no-repeat;
+}
+tbody th, tbody td { text-align:left;
+ vertical-align:top;
+}
+tfoot td { background:#5C443A;
+ color:#FFFFFF;
+ padding-top:3px;
+}
+.odd { background:#fff;
+}
+tbody tr:hover { background:#B1BCC7;
+ border:1px solid #03476F;
+ color:#000000;
+}
+
+
+

@@ -1,0 +1,78 @@
+/*
+	Creado por Oscar Alcal (Bio) para Diseamos
+	http://www.obstinated.net
+*/
+
+body {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+}
+
+ul {
+	width: 700px;
+	list-style: none; /*Eliminamos el estilo de lista*/
+	padding: 0; /*Evita la indentacin que aparece en algunos navegadores*/
+	margin: 0;
+	display: inline; /*Nos permite integrar con los elementos li y evitar problemas -*/
+	float: left;	  /*en algunos navegadores*/
+	border-bottom: 1px Solid Black;
+}
+
+ul li {
+	width: 90px;
+	display: block;
+	float: left; /*Flota los elementos de la lista*/
+	text-align: center;
+	margin-right: 5px;
+	position: relative; /*Hacemos el ajuste de 1 pixel para simular la integracin -*/
+	top: 1px;           /*con la capa de contenido*/
+}
+
+ul li a {
+	width: 90px; /*Fijamos el ancho para que el enlace sea toda la pestaa y no solo el texto*/
+	display: block;
+	background: #3B9CCC;
+	border: 1px Solid #000;
+	text-decoration: none;
+}
+
+ul li a:link, ul li a:visited, ul li a:active {
+	color: #000;
+}
+
+ul li a:hover {
+	color: #CEE59F;
+}
+
+/*Clase especial que resaltar dependiendo de la seccin*/
+a.actual {
+	width: 90px;
+	display: block;
+	background: #F3EDD1;
+	border-top: 1px Solid #000;
+	border-bottom: 1px Solid #F3EDD1;
+	text-decoration: none;
+}
+
+a.actual:link, a.actual:visited, a.actual:active {
+	color: #000;
+}
+
+a.actual:hover {
+	color: #000;
+}
+
+#contenido {
+	width: 700px;
+	background: #F3EDD1;
+	float: left;
+	margin: 0;
+	border-left: 1px Solid #000;
+	border-bottom: 1px Solid #000;
+	border-right: 1px Solid #000;
+	font-weight: normal;
+}
+
+#contenido p {
+	margin: 15px 20px;
+}
